@@ -1,0 +1,64 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-service
+  annotations:
+    kubernetes.io/ingress.class: 'nginx'
+    nginx.ingress.kubernetes.io/use-regex: 'true'
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+    - http:
+        paths:
+        - path: /?(.*)
+          backend:
+            serviceName: client-cluster-ip-service
+            servicePort: 3000
+        - path: /api/?(.*)
+          backend:
+            serviceName: server-cluster-ip-service
+            servicePort: 5000
+
+# Ingress Update "this.state.seenIndexes.map is not a function" / 404 errors
+
+# updated 7-14-2020
+
+# In the upcoming lecture, we will be creating our ingress-service.yaml configuration file. Since the recording of the lecture, there has been an update on how we need to specify some of these rules.
+
+# Most recently a change in how ingress-nginx handles regexes is causing 404 errors both locally and on Google Cloud. To resolve this we need to add a new line to the config:
+
+#     nginx.ingress.kubernetes.io/use-regex: 'true'
+
+# We also need to add a capture group and annotations which will resolve an error later in the course that you might see: TypeError: this.state.seenIndexes.map is not a function that will get thrown in the browser console with a blank white screen.
+
+# Lastly, we should update the API version that is being used:
+
+#     apiVersion: networking.k8s.io/v1beta1
+
+# Four lines need to be updated and one line needs to be added:
+
+#     apiVersion: networking.k8s.io/v1beta1
+#     # UPDATE THE API
+#     kind: Ingress
+#     metadata:
+#       name: ingress-service
+#       annotations:
+#         kubernetes.io/ingress.class: nginx
+#         nginx.ingress.kubernetes.io/use-regex: 'true'
+#         # ADD THIS LINE ABOVE
+#         nginx.ingress.kubernetes.io/rewrite-target: /$1
+#         # UPDATE THIS LINE ABOVE
+#     spec:
+#       rules:
+#         - http:
+#             paths:
+#               - path: /?(.*)
+#               # UPDATE THIS LINE ABOVE
+#                 backend:
+#                   serviceName: client-cluster-ip-service
+#                   servicePort: 3000
+#               - path: /api/?(.*)
+#               # UPDATE THIS LINE ABOVE
+#                 backend:
+#                   serviceName: server-cluster-ip-service
+#                   servicePort: 5000
